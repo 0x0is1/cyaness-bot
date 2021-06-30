@@ -86,7 +86,7 @@ async def main_fun():
             try:
                 msg=await channel_ob.send(embed=embed)
                 await msg.add_reaction(arrows_emojis[0])
-              await msg.add_reaction(arrows_emojis[1])
+                await msg.add_reaction(arrows_emojis[1])
             except TypeError:
                 pass
 
@@ -110,7 +110,7 @@ async def on_reaction_add(reaction, user):
             session_id=str(msg.embeds[0].footer.text).split('id:')
             await message.delete()
         except IndexError:pass
-        sess_args=session_id[1]
+        sess_args=int(session_id[1])
         if str(reaction) ==arrows_emojis[1]:
           sess_args+=1
         if str(reaction) == arrows_emojis[0]:
