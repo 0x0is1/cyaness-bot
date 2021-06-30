@@ -2,6 +2,7 @@ import random
 from discord.ext.commands.errors import CommandInvokeError, CommandNotFound
 import libcyaness, os, discord, json
 from discord.ext import commands, tasks
+from webserver import keep_alive
 
 info = {}
 REFRESH_TIME = 300
@@ -268,6 +269,6 @@ async def on_command_error(ctx, error):
         return
     print(error)
 
-
+keep_alive()
 auth_token = os.environ.get('EXPERIMENTAL_BOT_TOKEN')
 bot.run(auth_token)
