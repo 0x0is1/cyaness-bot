@@ -7,14 +7,6 @@ from webserver import keep_alive
 info = {}
 REFRESH_TIME = 300
 last_comic_index = random.randint(39, 5010)
-arrows_emojis=['⬅️', '➡️']
-
-def embed_generator(data, idx):
-    embed = discord.Embed(title='Cyanide and happiness', color=0x71368a)
-    embed.set_image(url=data)
-    embed.set_footer(text='id:'+str(idx))
-    return embed
-
 
 def enisable_text_channel(channel_id, status):
     global info
@@ -33,7 +25,7 @@ def help_embed():
     embed.add_field(
         name="**Commands:**\n",
         value=
-        "`register` : Command used for registering this channel.\n`deregister` : Command used for deregistering this channel.\n`enable` : Command used for enabling language of poem in this channel. \n `disable` : Command used for disabling language of poem in this channel.",
+        "`register` : Command used for registering this channel.\n`unregister` : Command used for deregistering this channel.\n`enable` : Command used for enabling language of poem in this channel. \n `disable` : Command used for disabling language of poem in this channel.",
         inline=False)
     embed.add_field(name="Invite: ",
                     value="You can get invite link by typing `invite`")
@@ -82,15 +74,12 @@ async def main_fun():
     for channel_id in channel_ids:
         status = info[channel_id]
         if status == 'ON':
-            embed = embed_generator(data, last_comic_index)
             channel_ob = bot.get_channel(int(channel_id))
             try:
-                msg=await channel_ob.send(embed=embed)
-                await msg.add_reaction(arrows_emojis[0])
-                await msg.add_reaction(arrows_emojis[1])
+                msg=await channel_ob.send(data)
             except TypeError:
                 pass
-
+            except Exception: pass
 
 @bot.event
 async def on_ready():
@@ -98,39 +87,12 @@ async def on_ready():
     info = json.load(open('info.json', 'r'))
     print('Bot status: Online.')
     main_fun.start()
-
-@bot.event
-async def on_reaction_add(reaction, user):
-    message = reaction.message
-    if not user.bot and message.author == bot.user:
-        global ids_con, botid
-        channel = message.channel
-        channel_id = channel.id
-        msg=await channel.fetch_message(message.id)
-        try:
-            session_id=str(msg.embeds[0].footer.text).split('id:')
-            await message.delete()
-        except IndexError:pass
-        sess_args=int(session_id[1])
-        if str(reaction) ==arrows_emojis[1]:
-          sess_args+=1
-        if str(reaction) == arrows_emojis[0]:
-          sess_args-=1
-        data=libcyaness.get_url(sess_args)
-        embed=embed_generator(data, sess_args)
-        sent_message=await channel.send(embed=embed)
-        await sent_message.add_reaction(arrows_emojis[0])
-        await sent_message.add_reaction(arrows_emojis[1])
-        
+ 
 @bot.command()
 async def meme(ctx):
     idx=random.randint(39, 5010)
     data = libcyaness.get_url(idx)
-    embed = embed_generator(data,idx)
-    msg=await ctx.send(embed=embed)
-    await msg.add_reaction(arrows_emojis[0])
-    await msg.add_reaction(arrows_emojis[1])
-
+    await ctx.send(data)
 
 @bot.command()
 async def invite(ctx):
@@ -189,7 +151,7 @@ async def disable(ctx):
 
 
 @bot.command()
-async def deregister(ctx):
+async def unregister(ctx):
     channel_id = ctx.message.channel.id
     channels = json.load(open('info.json', 'r'))
     channel_ids = list(channels.keys())
